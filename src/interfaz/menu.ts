@@ -1,12 +1,13 @@
 import type { Unidad } from "../datos/configuracion.ts";
+import { cian, verde } from "./colores.ts";
 
-const LINEA = "════════════════════════════════════════";
+const LINEA = cian("════════════════════════════════════════");
 
 // Renderiza el menú con el formato definido en el README.
 export function renderMenu(totalCiudades: number, unidad: Unidad): string {
   return [
     LINEA,
-    "         WEATHER CLI",
+    cian("         WEATHER CLI"),
     LINEA,
     "  1. Clima de ciudad default",
     `  2. Clima de todas las ciudades (${totalCiudades})`,
@@ -27,7 +28,7 @@ export function listarCiudades(
     .map(
       (ciudad, indice) =>
         `  ${indice + 1}. ${ciudad.nombre}${ciudad.pais ? ` (${ciudad.pais})` : ""}` +
-        (ciudad.nombre === ciudadPredeterminada ? " [default]" : ""),
+        (ciudad.nombre === ciudadPredeterminada ? verde(" [default]") : ""),
     )
     .join("\n");
 }

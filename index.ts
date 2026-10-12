@@ -9,6 +9,7 @@ import {
 import { buscarCiudad } from "./src/servicios/geocodificacion.ts";
 import { formatearTemperatura, obtenerTemperatura } from "./src/servicios/clima.ts";
 import { listarCiudades, renderMenu } from "./src/interfaz/menu.ts";
+import { amarillo, cian, negrita, rojo, verde } from "./src/interfaz/colores.ts";
 
 // Pide un número de ítem (1-based) y devuelve el índice, o null si es inválido.
 async function pedirIndice(rl: readline.Interface, mensaje: string): Promise<number | null> {
@@ -25,14 +26,14 @@ async function elegirCiudad(
   config: Configuracion,
 ): Promise<Ciudad | null> {
   if (config.ciudades.length === 0) {
-    console.log("\n  No hay ciudades registradas. Agrega una con la opción 3.");
+    console.log(`\n  ${amarillo("No hay ciudades registradas. Agrega una con la opción 3.")}`);
     return null;
   }
   console.log("\n" + listarCiudades(config.ciudades, config.ciudadPredeterminada));
   const indice = await pedirIndice(rl, "  Selecciona una ciudad: ");
   const ciudad = indice === null ? undefined : config.ciudades[indice];
   if (!ciudad) {
-    console.log("\n  Opción no válida.");
+    console.log(`\n  ${rojo("Opción no válida.")}`);
     return null;
   }
   return ciudad;
@@ -43,27 +44,31 @@ async function manejarOpcion(rl: readline.Interface, config: Configuracion, opci
     case "1": {
       const ciudad = config.ciudades.find((c) => c.nombre === config.ciudadPredeterminada);
       if (!ciudad) {
-        console.log("\n  No hay ciudad default. Agrega una con la opción 3.");
+        console.log(`\n  ${amarillo("No hay ciudad default. Agrega una con la opción 3.")}`);
         break;
       }
       const temperatura = await obtenerTemperatura(ciudad, config.unidad);
-      console.log(`\n  El clima en ${ciudad.nombre} es ${formatearTemperatura(temperatura, config.unidad)}`);
+      console.log(
+        `\n  El clima en ${negrita(ciudad.nombre)} es ${amarillo(formatearTemperatura(temperatura, config.unidad))}`,
+      );
       break;
     }
 
     case "2": {
       if (config.ciudades.length === 0) {
-        console.log("\n  No hay ciudades registradas. Agrega una con la opción 3.");
+        console.log(`\n  ${amarillo("No hay ciudades registradas. Agrega una con la opción 3.")}`);
         break;
       }
       console.log("");
       for (const ciudad of config.ciudades) {
         try {
           const temperatura = await obtenerTemperatura(ciudad, config.unidad);
-          console.log(`  ${ciudad.nombre}: ${formatearTemperatura(temperatura, config.unidad)}`);
+          console.log(
+            `  ${negrita(ciudad.nombre)}: ${amarillo(formatearTemperatura(temperatura, config.unidad))}`,
+          );
         } catch (error) {
           const mensaje = error instanceof Error ? error.message : "desconocido";
-          console.log(`  ${ciudad.nombre}: error (${mensaje})`);
+          console.log(`  ${negrita(ciudad.nombre)}: ${rojo(`error (${mensaje})`)}`);
         }
       }
       break;
@@ -72,19 +77,19 @@ async function manejarOpcion(rl: readline.Interface, config: Configuracion, opci
     case "3": {
       const nombre = (await rl.question("\n  Ingresa el nombre de la ciudad: ")).trim();
       if (!nombre) {
-        console.log("  El nombre no puede estar vacío.");
+        console.log(rojo("  El nombre no puede estar vacío."));
         break;
       }
       const ciudad = await buscarCiudad(nombre);
       if (!ciudad) {
-        console.log(`\n  No se encontró la ciudad "${nombre}".`);
+        console.log(`\n  ${rojo(`No se encontró la ciudad "${nombre}".`)}`);
         break;
       }
       const yaExiste = config.ciudades.some(
         (c) => c.nombre === ciudad.nombre && c.latitud === ciudad.latitud,
       );
       if (yaExiste) {
-        console.log(`\n  ${ciudad.nombre} ya está registrada.`);
+        console.log(`\n  ${amarillo(`${ciudad.nombre} ya está registrada.`)}`);
         break;
       }
       config.ciudades.push(ciudad);
@@ -93,7 +98,7 @@ async function manejarOpcion(rl: readline.Interface, config: Configuracion, opci
       }
       await guardarConfiguracion(config);
       const pais = ciudad.pais ? ` (${ciudad.pais})` : "";
-      console.log(`\n  Ciudad agregada: ${ciudad.nombre}${pais}`);
+      console.log(`\n  ${verde(`Ciudad agregada: ${negrita(ciudad.nombre)}${pais}`)}`);
       break;
     }
 
@@ -106,7 +111,7 @@ async function manejarOpcion(rl: readline.Interface, config: Configuracion, opci
         config.ciudadPredeterminada = config.ciudades[0]?.nombre ?? null;
       }
       await guardarConfiguracion(config);
-      console.log(`\n  Se eliminó ${eliminada?.nombre ?? "la ciudad"}.`);
+      console.log(`\n  ${verde(`Se eliminó ${eliminada?.nombre ?? "la ciudad"}.`)}`);
       break;
     }
 
@@ -115,14 +120,14 @@ async function manejarOpcion(rl: readline.Interface, config: Configuracion, opci
       if (!ciudad) break;
       config.ciudadPredeterminada = ciudad.nombre;
       await guardarConfiguracion(config);
-      console.log(`\n  Ciudad default: ${ciudad.nombre}`);
+      console.log(`\n  ${verde(`Ciudad default: ${negrita(ciudad.nombre)}`)}`);
       break;
     }
 
     case "8": {
       config.unidad = config.unidad === "C" ? "F" : "C";
       await guardarConfiguracion(config);
-      console.log(`\n  Ajustes: temperatura en °${config.unidad}`);
+      console.log(`\n  ${verde(`Ajustes: temperatura en °${config.unidad}`)}`);
       break;
     }
 
@@ -131,7 +136,7 @@ async function manejarOpcion(rl: readline.Interface, config: Configuracion, opci
     }
 
     default: {
-      console.log("\n  Opción no válida.");
+      console.log(`\n  ${rojo("Opción no válida.")}`);
       break;
     }
   }
@@ -145,17 +150,17 @@ async function main(): Promise<void> {
   let salir = false;
   while (!salir) {
     console.log("\n" + renderMenu(config.ciudades.length, config.unidad));
-    const opcion = (await rl.question("  Selecciona una opción: ")).trim();
+    const opcion = (await rl.question(cian("  Selecciona una opción: "))).trim();
     try {
       salir = await manejarOpcion(rl, config, opcion);
     } catch (error) {
       const mensaje = error instanceof Error ? error.message : "desconocido";
-      console.log(`\n  Error: ${mensaje}`);
+      console.log(`\n  ${rojo(`Error: ${mensaje}`)}`);
     }
   }
 
   rl.close();
-  console.log("\n  ¡Hasta luego!");
+  console.log(`\n  ${cian("¡Hasta luego!")}`);
 }
 
 main();
