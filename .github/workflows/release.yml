@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Read version from package.json
+        id: version
+        run: |
+          VERSION=$(jq -r .version package.json)
+          if [ -z "$VERSION" ] || [ "$VERSION" = "null" ]; then
+            echo "Error: version not found in package.json"
+            exit 1
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if tag already exists
+        id: check_tag
+        run: |
+          if gh api "repos/${{ github.repository }}/git/ref/tags/v${{ steps.version.outputs.version }}" > /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run tests
+        if: steps.check_tag.outputs.exists != 'true'
+        run: bun test
+
+      - name: Build binaries for all platforms
+        if: steps.check_tag.outputs.exists != 'true'
+        run: |
+          mkdir -p dist
+          for target in bun-darwin-arm64 bun-darwin-x64 bun-linux-arm64 bun-linux-x64 bun-windows-x64; do
+            name=${target#bun-}
+            echo "Building for $target..."
+            bun build --compile --target=$target src/index.ts --outfile dist/weather-$name
+          done
+          ls -la dist/
+
+      - name: Create GitHub release with binaries
+        if: steps.check_tag.outputs.exists != 'true'
+        run: |
+          gh release create "v${{ steps.version.outputs.version }}" \
+            dist/weather-* \
+            --generate-notes \
+            --title "Weather CLI v${{ steps.version.outputs.version }}"
