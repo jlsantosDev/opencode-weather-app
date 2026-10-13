@@ -7,8 +7,12 @@ import {
   type Configuracion,
 } from "./src/datos/configuracion.ts";
 import { buscarCiudad } from "./src/servicios/geocodificacion.ts";
-import { formatearTemperatura, obtenerTemperatura } from "./src/servicios/clima.ts";
-import { listarCiudades, renderMenu } from "./src/interfaz/menu.ts";
+import {
+  formatearTemperatura,
+  obtenerPronostico7Dias,
+  obtenerTemperatura,
+} from "./src/servicios/clima.ts";
+import { listarCiudades, renderMenu, renderPronostico } from "./src/interfaz/menu.ts";
 import { amarillo, cian, negrita, rojo, verde } from "./src/interfaz/colores.ts";
 
 // Pide un número de ítem (1-based) y devuelve el índice, o null si es inválido.
@@ -121,6 +125,15 @@ async function manejarOpcion(rl: readline.Interface, config: Configuracion, opci
       config.ciudadPredeterminada = ciudad.nombre;
       await guardarConfiguracion(config);
       console.log(`\n  ${verde(`Ciudad default: ${negrita(ciudad.nombre)}`)}`);
+      break;
+    }
+
+    case "6": {
+      const ciudad = await elegirCiudad(rl, config);
+      if (!ciudad) break;
+      console.log(`\n  ${cian("Consultando pronóstico…")}`);
+      const dias = await obtenerPronostico7Dias(ciudad, config.unidad);
+      console.log("\n" + renderPronostico(ciudad.nombre, dias, config.unidad));
       break;
     }
 

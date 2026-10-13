@@ -7,3 +7,4 @@
 - [] **Binario:** compila bien; revisar que `./weather` guarde datos en `~/.config/weather-cli/`.
 - [] **Escalabilidad:** ¿qué tan fácil será expandir con nuevas funcionalidades?
 - [] **Carga:** ¿hay estado de carga en las tareas asíncronas?
+- [x] **7 dias forecast:** Agregar la opción de pronóstico de los 7 días próximos.

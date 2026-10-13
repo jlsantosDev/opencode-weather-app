@@ -31,4 +31,4 @@ Two-step Open-Meteo HTTP flow (no auth):
 1. Geocode: `https://geocoding-api.open-meteo.com/v1/search?name=<city>&count=1&language=es&format=json`
 2. Forecast: `https://api.open-meteo.com/v1/forecast?latitude=<lat>&longitude=<lon>&current=temperature_2m`
 
-Features required by README: default city, multiple saved cities, add/remove/set-default city, unit setting (°C/°F), and the exact boxed menu shown in README. User-facing strings are in **Spanish** — keep them consistent.
+Features required by README: default city, multiple saved cities, add/remove/set-default city, unit setting (°C/°F), 7-day forecast (menu option 6), and the exact boxed menu shown in README. User-facing strings are in **Spanish** — keep them consistent.
