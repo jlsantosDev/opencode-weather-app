@@ -1,10 +1,10 @@
 import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 // Sandbox HOME para que settingsStorage escriba en un directorio temporal
 // y nunca toque la configuración real del usuario (~/.weather-cli.json).
-const TMP_BASE = "/private/var/folders/2b/33wfhcyd0yx_qgxg4bc79fmh0000gn/T/opencode";
-const sandbox = mkdtempSync(join(TMP_BASE, "weather-cli-test-"));
+const sandbox = mkdtempSync(join(tmpdir(), "weather-cli-test-"));
 process.env.HOME = sandbox;
 process.env.USERPROFILE = sandbox;
 

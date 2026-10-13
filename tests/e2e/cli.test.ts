@@ -1,12 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const projectRoot = join(import.meta.dir, "../..");
 
 // Cada e2e usa un HOME limpio para no heredar estado de otros tests.
 function homeLimpio(): string {
-  return mkdtempSync(join("/private/var/folders/2b/33wfhcyd0yx_qgxg4bc79fmh0000gn/T/opencode", "weather-e2e-"));
+  return mkdtempSync(join(tmpdir(), "weather-e2e-"));
 }
 
 async function interactuar(lineas: string[]): Promise<{ salida: string; exitCode: number }> {
