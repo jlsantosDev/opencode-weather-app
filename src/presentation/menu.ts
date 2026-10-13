@@ -1,6 +1,7 @@
-import type { Unidad } from "../datos/configuracion.ts";
-import { formatearTemperatura, type DiaPronostico } from "../servicios/clima.ts";
-import { amarillo, cian, negrita, verde } from "./colores.ts";
+import type { Unidad } from "../types/Settings.ts";
+import type { DiaPronostico } from "../types/Weather.ts";
+import { formatearFechaCorta, formatearTemperatura } from "../utils/format.ts";
+import { amarillo, cian, negrita, verde } from "../utils/colors.ts";
 
 const LINEA = cian("════════════════════════════════════════");
 
@@ -35,21 +36,6 @@ export function listarCiudades(
     .join("\n");
 }
 
-const formateadorFecha = new Intl.DateTimeFormat("es", {
-  weekday: "short",
-  day: "2-digit",
-  month: "short",
-  timeZone: "UTC",
-});
-
-// "2026-10-13" → "lun 13 oct". Se construye con Date.UTC para no cambiar de
-// día por el desfase horario local.
-function formatearFechaCorta(iso: string): string {
-  const [anio, mes, dia] = iso.split("-");
-  const fecha = new Date(Date.UTC(Number(anio), Number(mes) - 1, Number(dia)));
-  return formateadorFecha.format(fecha).replace(/\./g, "").trim();
-}
-
 export function renderPronostico(
   nombreCiudad: string,
   dias: readonly DiaPronostico[],
@@ -61,7 +47,7 @@ export function renderPronostico(
       `${formatearTemperatura(dia.maxima, unidad)} / ${formatearTemperatura(dia.minima, unidad)}`.padEnd(18),
     );
     const lluvia = (dia.probLluvia === null ? "—" : `${dia.probLluvia}%`).padEnd(5);
-    return `  ${negrita(fecha)}${temperaturas}${lluvia}${dia.descripcion}`;
+    return `  ${negrita(fecha)} ${temperaturas}${lluvia}${dia.descripcion}`;
   });
 
   return [

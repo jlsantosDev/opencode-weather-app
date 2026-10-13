@@ -1,4 +1,4 @@
-import type { Ciudad } from "../datos/configuracion.ts";
+import type { Ciudad } from "../types/City.ts";
 
 interface ResultadoGeocodificacion {
   name: string;

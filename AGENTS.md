@@ -2,15 +2,22 @@
 
 ## What this is
 
-Bun-based console **Weather CLI** in TypeScript (tutorial in Spanish — see `README.md` for the required menu layout). Entry is `index.ts` (menu loop); app code lives under `src/` with **Spanish directory/file names and identifiers** (`src/datos/`, `src/servicios/`, `src/interfaz/`) — follow that convention for new code.
+Bun-based console **Weather CLI** in TypeScript (tutorial in Spanish — see `README.md` for the required menu layout). Entry is `src/index.ts` (menu loop); app code lives under `src/` organized by responsibility:
+
+- `src/types/` — TypeScript contracts (`City.ts`, `Settings.ts`, `Weather.ts`, `MenuOption.ts`)
+- `src/api/` — External API integration (`geocoding.ts`, `weather.ts`)
+- `src/storage/` — Local persistence (`citiesStorage.ts`, `settingsStorage.ts`)
+- `src/actions/` — User-facing actions (`getWeather.ts`, `addCity.ts`, `removeCity.ts`, `setDefaultCity.ts`, `getForecast.ts`, `changeUnit.ts`, `listCities.ts`)
+- `src/presentation/` — Console I/O (`menu.ts`, `output.ts`, `input.ts`)
+- `src/utils/` — Reusable helpers (`format.ts`, `constants.ts`, `colors.ts`)
 
 - User config persists to `~/.weather-cli.json` (outside the repo; delete it to reset state when testing).
-- Binary build: `bun build index.ts --compile --outfile dist/weather` (dist/ is gitignored).
+- Binary build: `bun run build` → `dist/weather` (dist/ is gitignored).
 
 ## Toolchain rules
 
 - Use **Bun only**, never Node/npm/pnpm/yarn/vite (see `.cursor/rules/use-bun-instead-of-node-vite-npm-pnpm.mdc` for the full list).
-  - Run: `bun index.ts` (or `bun run index.ts`) — there are **no scripts in `package.json`**, don't guess `npm run dev`.
+  - Run: `bun run dev` (watch mode) or `bun run src/index.ts` (one-shot).
   - Install: `bun install`; ad-hoc tools: `bunx <pkg>`.
   - Tests: `bun test` (no tests exist yet; use `import { test, expect } from "bun:test"`).
   - Typecheck: `bunx tsc --noEmit` (tsconfig already sets `noEmit`; there is no typecheck script).

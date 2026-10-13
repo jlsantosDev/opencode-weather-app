@@ -1,20 +1,6 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
-
-export type Unidad = "C" | "F";
-
-export interface Ciudad {
-  nombre: string;
-  latitud: number;
-  longitud: number;
-  pais?: string;
-}
-
-export interface Configuracion {
-  ciudadPredeterminada: string | null;
-  ciudades: Ciudad[];
-  unidad: Unidad;
-}
+import type { Configuracion, Unidad } from "../types/Settings.ts";
 
 const RUTA_ARCHIVO = join(homedir(), ".weather-cli.json");
 
@@ -43,4 +29,24 @@ export async function cargarConfiguracion(): Promise<Configuracion> {
 
 export async function guardarConfiguracion(config: Configuracion): Promise<void> {
   await Bun.write(RUTA_ARCHIVO, JSON.stringify(config, null, 2));
+}
+
+// --- Funciones de persistencia específicas para ciudades ---
+
+export async function guardarCiudades(ciudades: Configuracion["ciudades"]): Promise<void> {
+  const config = await cargarConfiguracion();
+  config.ciudades = ciudades;
+  await guardarConfiguracion(config);
+}
+
+export async function guardarCiudadPredeterminada(ciudad: string | null): Promise<void> {
+  const config = await cargarConfiguracion();
+  config.ciudadPredeterminada = ciudad;
+  await guardarConfiguracion(config);
+}
+
+export async function guardarUnidad(unidad: Unidad): Promise<void> {
+  const config = await cargarConfiguracion();
+  config.unidad = unidad;
+  await guardarConfiguracion(config);
 }
