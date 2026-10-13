@@ -11,6 +11,10 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      # gh CLI en Actions requiere GH_TOKEN explícito; github.token es el
+      # token efímero que el runner inyecta automáticamente (sin secretos).
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
