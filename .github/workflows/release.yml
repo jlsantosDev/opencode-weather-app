@@ -54,7 +54,8 @@ jobs:
           mkdir -p dist
           for target in bun-darwin-arm64 bun-darwin-x64 bun-linux-arm64 bun-linux-x64 bun-windows-x64; do
             name=${target#bun-}
-            echo "Building for $target..."
+            name=${name/darwin/mac}
+            echo "Building for $target as weather-$name..."
             bun build --compile --target=$target src/index.ts --outfile dist/weather-$name
           done
           ls -la dist/
